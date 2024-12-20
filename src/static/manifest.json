@@ -1,35 +1,42 @@
 {
-    "manifest_version": 3,
-    "name": "react-boilerplate",
-    "description": "react-boilerplate for chrome extension",
-    "version": "1.0.0",
-    "action" : {
-        "default_popup": "popup.html",
-        "default_title": "React Boilerplate",
-        "default_icon" : "icon.png"
-    },
-    "chrome_url_overrides": {
-        "newtab": "newTab.html"
-    },
-    "permissions": [
-        "tabs",
-        "bookmarks",
-        "storage",
-        "identity"
-    ],
-    "icons": {
-        "16" : "icon.png",
-        "48" : "icon.png",
-        "128" : "icon.png"
-    },
-    "options_page": "options.html",
-    "background": {
-        "service_worker": "background.js"
-    },
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["contentScript.js"]
-        }
-    ]
+  "manifest_version": 3,
+  "name": "图片水印",
+  "description": "By：Tetap",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "React Boilerplate",
+    "default_icon": "icon.png"
+  },
+  "minimum_chrome_version": "96",
+  "permissions": [
+    "tabs",
+    "webRequest",
+    "downloads",
+    "storage",
+    "webNavigation",
+    "alarms",
+    "declarativeNetRequest",
+    "scripting"
+  ],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": ["*://*/*", "<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["contentScript.js"],
+      "run_at": "document_start"
+    }
+  ]
 }
