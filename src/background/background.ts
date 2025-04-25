@@ -1,4 +1,3 @@
-import { clearWatermark } from "./watermark";
 import {
   TabsMap,
   saveTab,
@@ -7,9 +6,9 @@ import {
   removeFileItem,
 } from "./tabs/tabs";
 
-setInterval(() => {
-  console.log(TabsMap);
-}, 1000);
+// setInterval(() => {
+//   console.log(TabsMap);
+// }, 1000);
 
 // 监听标签页激活事件
 chrome.tabs.onActivated.addListener(function (activeInfo) {
@@ -52,6 +51,7 @@ chrome.action.onClicked.addListener((tab) => {
 chrome.webNavigation.onBeforeNavigate.addListener(function () {
   return;
 });
+
 chrome.webNavigation.onHistoryStateUpdated.addListener(function () {
   return;
 });
