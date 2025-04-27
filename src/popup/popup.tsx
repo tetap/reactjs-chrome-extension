@@ -32,13 +32,15 @@ const Popup = () => {
         ))}
       </div>
       <div className="flex-1 min-w-0 min-h-0 overflow-auto p-2">
-        <div className="flex items-center flex-col">
-          <div className="flex">
-            <img
-              className="w-full h-full"
-              src={"https://www.dute.org/imgplaceholder/800x240"}
-            />
-            <div>
+        <div className="flex flex-col gap-2">
+          <div className="flex w-full">
+            <div className="w-2/3 max-h-32">
+              <img
+                className="w-full h-full object-contain"
+                src={"https://www.dute.org/imgplaceholder/800x240"}
+              />
+            </div>
+            <div className="flex-1 min-w-0 min-h-0">
               <div>1.22MB</div>
               <div>1920*1080</div>
             </div>
