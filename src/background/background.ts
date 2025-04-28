@@ -3,17 +3,25 @@ import {
   saveTab,
   removeTab,
   setFileItem,
-  removeFileItem,
+  getTabList,
 } from "./tabs/tabs";
 
-// setInterval(() => {
-//   console.log(TabsMap);
-// }, 1000);
+let currentTabId = 0;
+
+chrome.tabs
+  .query({ active: true, currentWindow: true })
+  .then((tabs) => {
+    if (!tabs.length) return;
+    const tab = tabs[0];
+    currentTabId = tab.id;
+  })
+  .catch(() => {});
 
 // 监听标签页激活事件
 chrome.tabs.onActivated.addListener(function (activeInfo) {
   // 获取当前激活的标签页 ID
   const tabId = activeInfo.tabId;
+  currentTabId = tabId;
   // 获取当前激活的标签页信息
   chrome.tabs.get(tabId, function (tab) {
     saveTab({
@@ -26,7 +34,6 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 
 // 监听标签页更新事件，用于处理标签页 URL 变化等情况
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  console.log(changeInfo.status);
   if (changeInfo.status === "complete") {
     saveTab({
       tabId,
@@ -48,14 +55,7 @@ chrome.action.onClicked.addListener((tab) => {
   chrome.sidePanel.open({ tabId });
 });
 
-chrome.webNavigation.onBeforeNavigate.addListener(function () {
-  return;
-});
-
-chrome.webNavigation.onHistoryStateUpdated.addListener(function () {
-  return;
-});
-
+// 监听响应头
 chrome.webRequest.onResponseStarted.addListener(
   async function (data) {
     if (data.frameId === -1) return;
@@ -70,6 +70,7 @@ chrome.webRequest.onResponseStarted.addListener(
     const contentSize = (await fetch(data.url, { method: "HEAD" })).headers.get(
       "content-length"
     );
+    if (!contentSize) return;
     const tabId = data.tabId;
     const uri = data.url;
     setFileItem(tabId, { uri, contentSize });
@@ -78,12 +79,25 @@ chrome.webRequest.onResponseStarted.addListener(
   ["responseHeaders"]
 );
 
-// 删除失败的requestHeadersData
-chrome.webRequest.onErrorOccurred.addListener(
-  function (data) {
-    const tabId = data.tabId;
-    const uri = data.url;
-    removeFileItem(tabId, uri);
-  },
-  { urls: ["<all_urls>"] }
-);
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "get_current_page") {
+    const tabData = TabsMap.get(currentTabId);
+    if (!tabData) return;
+    sendResponse({
+      tabId: currentTabId,
+      list: tabData.list,
+      activePage: message.activePage,
+    });
+  } else if (message.action === "get_other_page") {
+    const tabData = Array.from(TabsMap.values()).filter(
+      (item) => item.tabId !== currentTabId
+    );
+    if (!tabData) return;
+    sendResponse({
+      tabId: message.tabId,
+      list: tabData.flatMap((item) => item.list),
+      activePage: message.activePage,
+    });
+  }
+  return true;
+});

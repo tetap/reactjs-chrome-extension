@@ -19,6 +19,10 @@ export function removeTab(tabId: number) {
   TabsMap.delete(tabId);
 }
 
+export function getTabList(tabId: number) {
+  return TabsMap.get(tabId)?.list ?? [];
+}
+
 export function setFileItem(tabId: number, file: IFileInfoDto) {
   let tab = TabsMap.get(tabId);
   if (!tab) {
@@ -40,12 +44,7 @@ export function setFileItem(tabId: number, file: IFileInfoDto) {
       uri: file.uri,
       create_at: now,
       update_at: now,
+      contentSize: file.contentSize,
     });
   }
-}
-
-export function removeFileItem(tabId: number, uri: string) {
-  const tab = TabsMap.get(tabId);
-  if (!tab) return;
-  tab.list = tab.list.filter((item) => item.uri !== uri);
 }

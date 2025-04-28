@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRafInterval } from "ahooks";
 import "./popup.css";
 
 const tabs = [
@@ -14,6 +15,22 @@ const tabs = [
 
 const Popup = () => {
   const [activePage, setActivePage] = useState(1);
+
+  const [list, setList] = useState<any[]>([]);
+
+  useRafInterval(() => {
+    chrome.runtime.sendMessage(
+      {
+        action: activePage === 1 ? "get_current_page" : "get_other_page",
+        activePage,
+      },
+      (response) => {
+        console.log(response);
+        setList([...response.list]);
+      }
+    );
+  }, 300);
+
   return (
     <div className="w-full h-screen flex flex-col">
       <div className="flex-none border-b border-gray-200 text-sm flex items-center select-none justify-center gap-2">
@@ -33,18 +50,23 @@ const Popup = () => {
       </div>
       <div className="flex-1 min-w-0 min-h-0 overflow-auto p-2">
         <div className="flex flex-col gap-2">
-          <div className="flex w-full">
-            <div className="w-2/3 max-h-32">
-              <img
-                className="w-full h-full object-contain"
-                src={"https://www.dute.org/imgplaceholder/800x240"}
-              />
-            </div>
-            <div className="flex-1 min-w-0 min-h-0">
-              <div>1.22MB</div>
-              <div>1920*1080</div>
-            </div>
-          </div>
+          {list.map((item) => {
+            return (
+              <div className="flex items-center w-full" key={item.uri}>
+                <div className="w-1/5 max-w-xs max-h-32 overflow-hidden">
+                  <video
+                    src={item.uri}
+                    className="w-full h-full object-contain"
+                    preload="false"
+                  />
+                </div>
+                <div className="flex-1 min-w-0 min-h-0">
+                  <div>{item.contentSize}</div>
+                  <div>1920*1080</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
